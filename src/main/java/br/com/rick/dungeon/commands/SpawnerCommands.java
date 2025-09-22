@@ -11,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 @RequiredArgsConstructor
 public class SpawnerCommands implements CommandExecutor {
 
@@ -18,6 +20,7 @@ public class SpawnerCommands implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String @NotNull [] args) {
+        plugin.getLogger().info(sender.getName() + " usou: " + s + Arrays.toString(args));
         if (!(sender instanceof Player) ) {
             sender.sendMessage(ChatColor.RED + "Apenas players podem utilizar este comando!");
             return true;
@@ -59,11 +62,11 @@ public class SpawnerCommands implements CommandExecutor {
     private boolean giveSpawnerCommand(CommandSender sender, String[] args) {
         if (!sender.hasPermission("dungeon.admin")) {
             sender.sendMessage(ChatColor.RED + "Você não tem permissão para isto!");
-            return true;
+            return false;
         }
 
         if (args.length < 3) {
-            return true;
+            return false;
         }
 
         Player player = Bukkit.getPlayer(args[2]);
@@ -71,11 +74,12 @@ public class SpawnerCommands implements CommandExecutor {
         if (player != null) {
             Integer quantidade = Integer.valueOf(args[3]);
             DungeonSpawner spawner = new DungeonSpawner();
+            sender.sendMessage(ChatColor.GREEN + "Enviado " + quantidade + " spawner(s) para " + player.getName() + " !");
             spawner.receberSpawner(player, quantidade);
         } else {
             sender.sendMessage(ChatColor.RED + "Jogador não encontrado!");
         }
 
-        return false;
+        return true;
     }
 }

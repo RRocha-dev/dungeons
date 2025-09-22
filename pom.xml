@@ -19,6 +19,7 @@
     <build>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
+            <!-- Compilador Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -28,6 +29,8 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!-- Empacotar todas dependências em um jar único -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -38,10 +41,39 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <!-- Forçar nome fixo -->
+                            <finalName>dungeon</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Copiar jar final para a pasta do servidor Minecraft -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-jar-to-plugins</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <copy
+                                        file="${project.build.directory}/dungeon.jar"
+                                        tofile="C:/Users/Rickelme Rocha/Documents/minecraft/1.25.8/plugins/dungeon.jar"
+                                        overwrite="true"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -62,11 +94,15 @@
     </repositories>
 
     <dependencies>
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.42</version>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>

@@ -1,0 +1,15 @@
+name: Dungeon
+version: '1.0-SNAPSHOT'
+main: br.com.rick.dungeon.Dungeon
+api-version: '1.21'
+commands:
+  dungeon:
+    aliases:
+      - dg
+    permission: dungeon.use
+    permission-message: Você não tem permissão para isto!
+    usage: Use /dungeon|dg [give|setspawn] [key|spawner|vault] <player> <quantity>
+permissions:
+  dungeon.use:
+    description: Deixa utilizar o comando de dungeon
+    default: op

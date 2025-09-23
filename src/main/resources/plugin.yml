@@ -8,7 +8,7 @@ commands:
       - dg
     permission: dungeon.use
     permission-message: Você não tem permissão para isto!
-    usage: Use /dungeon|dg [give|setspawn] [key|spawner|vault] <player> <quantity>
+    usage: Use /dungeon|dg
 permissions:
   dungeon.use:
     description: Deixa utilizar o comando de dungeon

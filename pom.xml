@@ -14,12 +14,15 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <lombok.version>1.18.42</lombok.version>
     </properties>
 
     <build>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
-            <!-- Compilador Java -->
+            <!-- Compilador Java com configuração específica para Lombok -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -27,6 +30,24 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <release>${java.version}</release>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    
+                    <!-- Configuração específica para Lombok -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    
+                    <!-- Parâmetros adicionais do compilador -->
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                        <arg>-Xlint:deprecation</arg>
+                        <arg>-Xlint:unchecked</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -34,7 +55,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -44,6 +65,39 @@
                         <configuration>
                             <!-- Forçar nome fixo -->
                             <finalName>dungeon</finalName>
+                            
+                            <!-- Filtros para excluir dependências desnecessárias -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <!-- Excluir Lombok do JAR final (não é necessário em runtime) -->
+                                <filter>
+                                    <artifact>org.projectlombok:lombok</artifact>
+                                    <excludes>
+                                        <exclude>**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            
+                            <!-- Minimizar o JAR removendo classes não utilizadas -->
+                            <minimizeJar>false</minimizeJar>
+                            
+                            <!-- Transformers para manipular o conteúdo do JAR -->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Built-By>Maven</Built-By>
+                                        <Build-Jdk>${java.version}</Build-Jdk>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
@@ -60,10 +114,13 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
+                                <echo message="Copiando JAR para servidor..." />
                                 <copy
                                         file="${project.build.directory}/dungeon.jar"
-                                        tofile="C:/Users/Rickelme Rocha/Documents/minecraft/1.25.8/plugins/dungeon.jar"
-                                        overwrite="true"/>
+                                        tofile="C:/Users/ricke/OneDrive/Documentos/Projetos/SERVER/plugins/dungeon.jar"
+                                        overwrite="true"
+                                        failonerror="false"/>
+                                <echo message="JAR copiado com sucesso!" />
                             </target>
                         </configuration>
                         <goals>
@@ -71,6 +128,17 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Plugin para executar testes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <!-- Pular testes se não houver -->
+                    <skipTests>true</skipTests>
+                </configuration>
             </plugin>
         </plugins>
 
@@ -91,14 +159,18 @@
             <id>sonatype-snapshots</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </repository>
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
     </repositories>
 
     <dependencies>
-        <!-- Lombok -->
+        <!-- Lombok - DEVE ser o primeiro na lista -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
